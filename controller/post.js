@@ -1,30 +1,7 @@
-import express from "express";
-import checkAuth from "../middleware/auth_user.js";
 import Post from "../model/Post.js";
-import User from "../model/User.js";
-import Comment from "../model/Comment.js";
+import Comment from "../model/Comment.js"
 
-const Router = express.Router();
-
-// Post api/comment/id add comment for post with id by auth user      IP comment  OP comment-id
-Router.post("/comment/:id", checkAuth, async (req, res) => {
-  const comment = new Comment({
-    postId: req.params.id,
-    userId: req.userData.email,
-    comment: req.body.comment,
-  });
-  try {
-    const savedComment = await comment.save();
-    res.status(200).json({
-      commentId: savedComment.id,
-    });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-});
-
-// Post api/posts new post
-Router.post("/", checkAuth, async (req, res) => {
+export const add_post = async (req, res) => {
   const newPost = new Post({
     userId: req.userData.email,
     title: req.body.title,
@@ -42,10 +19,9 @@ Router.post("/", checkAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+};
 
-// Delete api/posts/:id delete post
-Router.delete("/:id", checkAuth, async (req, res) => {
+export const delete_post = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post.userId === req.userData.email) {
@@ -57,10 +33,9 @@ Router.delete("/:id", checkAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+};
 
-// Post api/like/:id like the post with id by auth user
-Router.post("/like/:id", checkAuth, async (req, res) => {
+export const like_post = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post.likes.includes(req.userData.email)) {
@@ -72,10 +47,9 @@ Router.post("/like/:id", checkAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+};
 
-// Post api/unlike/:id unlike the post with id by auth user
-Router.post("/unlike/:id", checkAuth, async (req, res) => {
+export const unlike_post = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post.likes.includes(req.userData.email)) {
@@ -87,10 +61,9 @@ Router.post("/unlike/:id", checkAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+};
 
-// Get api/posts/id get a single post with id populated with no of likes and comments
-Router.get("/:id", checkAuth, async (req, res) => {
+export const get_one_post = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     const comment = await Comment.find({ postId: req.params.id });
@@ -105,15 +78,14 @@ Router.get("/:id", checkAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+};
 
-// Get api/all_posts return all post by auth user in order of post time
-Router.post("/all_posts", checkAuth, async (req, res) => {
+export const get_all_post = async (req, res) => {
   try {
     const userPost = await Post.find({ userId: req.userData.email });
 
     const modifiedArray = await Promise.all(
-      userPost.map(async(post) => {
+      userPost.map(async (post) => {
         const commentArray = await Comment.find({
           postId: post._id,
         });
@@ -134,6 +106,20 @@ Router.post("/all_posts", checkAuth, async (req, res) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+};
 
-export default Router;
+export const add_comment = async (req, res) => {
+  const comment = new Comment({
+    postId: req.params.id,
+    userId: req.userData.email,
+    comment: req.body.comment,
+  });
+  try {
+    const savedComment = await comment.save();
+    res.status(200).json({
+      commentId: savedComment.id,
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};

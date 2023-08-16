@@ -1,12 +1,8 @@
-import express from "express";
 import User from "../model/User.js";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"
 
-const Router = express.Router();
-
-// Authenticate login
-Router.post("/", async (req, res) => {
+export const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) res.status(404).json("User not found");
@@ -31,10 +27,9 @@ Router.post("/", async (req, res) => {
   } catch (error) {
     res.status(500).json("Internal server error");
   }
-});
+};
 
-// Register
-Router.get("/register", async (req, res) => {
+export const register = async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPass = await bcrypt.hash(req.body.password, salt);
 
@@ -59,6 +54,4 @@ Router.get("/register", async (req, res) => {
       });
       console.log(err);
     });
-});
-
-export default Router;
+};
